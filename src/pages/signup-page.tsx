@@ -134,21 +134,21 @@ export default function SignupPage() {
 
           <CardContent>
             <div className="space-y-4">
-              <GoogleAuthButton
+              {/* <GoogleAuthButton
                 type="button"
                 className="w-full"
                 onClick={handleGoogleAuth}
                 disabled={loading || authDisabled}
                 label="Continue with Google"
-              />
+              /> */}
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t" />
                 </div>
-                <div className="relative flex justify-center text-xs uppercase">
+                {/* <div className="relative flex justify-center text-xs uppercase">
                   <span className="bg-card px-2 text-muted-foreground">Or create an account with email</span>
-                </div>
+                </div> */}
               </div>
 
               <form className="space-y-4" onSubmit={handleSubmit}>
@@ -212,9 +212,9 @@ export default function SignupPage() {
                   {loading ? "Creating account..." : "Create account"}
                 </Button>
 
-                <p className="text-center text-xs text-muted-foreground">
+                {/* <p className="text-center text-xs text-muted-foreground">
                   Enable Email/Password and Google providers in Firebase Authentication.
-                </p>
+                </p> */}
 
                 <p className="text-center text-sm text-muted-foreground">
                   Already have an account?{" "}
