@@ -4,7 +4,7 @@ A modern React + TypeScript dashboard for healthcare operations teams. HealthHQ 
 
 ## Highlights
 
-- Firebase Authentication with email/password and Google sign-in.
+- Firebase Authentication with email/password login, signup, and password reset.
 - Protected application routes with session restore and redirect handling.
 - Dashboard with operational metrics, high-priority patient queue, and notification controls.
 - Analytics views built with Recharts (department distribution, trend, status mix).
@@ -30,7 +30,7 @@ A modern React + TypeScript dashboard for healthcare operations teams. HealthHQ 
 
 ### 1. Authentication
 - Sign up, login, logout, and password reset flows.
-- Google OAuth popup login.
+- Firebase Google OAuth integration is available in the auth store and can be re-enabled in the UI when needed.
 - Firebase error normalization for user-friendly messages.
 - Graceful behavior when Firebase env variables are missing.
 

@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { HeartPulse, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "../components/ui/button";
-import { GoogleAuthButton } from "../components/auth/google-auth-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { useAuthStore } from "../store/auth-store";
@@ -17,7 +16,7 @@ interface SignupLocationState {
 export default function SignupPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, signup, signInWithGoogle, loading, error, initialized, configError, clearError } =
+  const { user, signup, loading, error, initialized, configError, clearError } =
     useAuthStore();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -43,18 +42,6 @@ export default function SignupPage() {
   }
 
   if (user) return <Navigate to={redirectTo} replace />;
-
-  const handleGoogleAuth = async () => {
-    setLocalError("");
-    setSuccessMessage("");
-    clearError();
-
-    const success = await signInWithGoogle();
-    if (success) {
-      await showAppNotification("Account ready", "You have successfully continued with Google.");
-      navigate(redirectTo, { replace: true });
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

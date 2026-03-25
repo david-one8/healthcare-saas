@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { HeartPulse, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "../components/ui/button";
-import { GoogleAuthButton } from "../components/auth/google-auth-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { useAuthStore } from "../store/auth-store";
@@ -20,7 +19,6 @@ export default function LoginPage() {
   const {
     user,
     login,
-    signInWithGoogle,
     loading,
     error,
     initialized,
@@ -48,17 +46,6 @@ export default function LoginPage() {
   }
 
   if (user) return <Navigate to={redirectTo} replace />;
-
-  const handleGoogleAuth = async () => {
-    setLocalError("");
-    clearError();
-
-    const success = await signInWithGoogle();
-    if (success) {
-      await showAppNotification("Welcome", "You have successfully signed in with Google.");
-      navigate(redirectTo, { replace: true });
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
