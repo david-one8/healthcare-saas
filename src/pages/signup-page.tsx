@@ -8,33 +8,28 @@ import { Input } from "../components/ui/input";
 import { useAuthStore } from "../store/auth-store";
 import { showAppNotification } from "../services/notifications";
 
-interface LoginLocationState {
+interface SignupLocationState {
   from?: {
     pathname?: string;
   };
 }
 
-export default function LoginPage() {
+export default function SignupPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const {
-    user,
-    login,
-    signInWithGoogle,
-    loading,
-    error,
-    initialized,
-    configError,
-    clearError,
-  } = useAuthStore();
+  const { user, signup, signInWithGoogle, loading, error, initialized, configError, clearError } =
+    useAuthStore();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [localError, setLocalError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
-  const locationState = location.state as LoginLocationState | null;
+  const locationState = location.state as SignupLocationState | null;
   const redirectTo = useMemo(() => {
     const from = locationState?.from?.pathname;
-    return from && from !== "/login" ? from : "/";
+    return from && from !== "/signup" ? from : "/";
   }, [locationState]);
 
   if (!initialized && loading) {
@@ -51,11 +46,12 @@ export default function LoginPage() {
 
   const handleGoogleAuth = async () => {
     setLocalError("");
+    setSuccessMessage("");
     clearError();
 
     const success = await signInWithGoogle();
     if (success) {
-      await showAppNotification("Welcome", "You have successfully signed in with Google.");
+      await showAppNotification("Account ready", "You have successfully continued with Google.");
       navigate(redirectTo, { replace: true });
     }
   };
@@ -63,7 +59,13 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLocalError("");
+    setSuccessMessage("");
     clearError();
+
+    if (name.trim().length < 2) {
+      setLocalError("Enter your full name.");
+      return;
+    }
 
     if (!/\S+@\S+\.\S+/.test(email)) {
       setLocalError("Enter a valid email address.");
@@ -75,9 +77,15 @@ export default function LoginPage() {
       return;
     }
 
-    const success = await login(email, password);
+    if (password !== confirmPassword) {
+      setLocalError("Passwords do not match.");
+      return;
+    }
+
+    const success = await signup(name, email, password);
     if (success) {
-      await showAppNotification("Welcome back", "You have successfully logged in to HealthHQ.");
+      setSuccessMessage("Account created. We sent a verification email to your inbox.");
+      await showAppNotification("Account created", "Your HealthHQ account is ready.");
       navigate(redirectTo, { replace: true });
     }
   };
@@ -100,16 +108,16 @@ export default function LoginPage() {
 
         <div>
           <h2 className="max-w-md text-4xl font-bold leading-tight">
-            Modern care intelligence for multi-clinic teams.
+            Create secure access for your care operations workspace.
           </h2>
           <div className="mt-8 space-y-4">
             <div className="flex items-center gap-3">
               <ShieldCheck className="h-5 w-5" />
-              <span>Secure Firebase-authenticated access</span>
+              <span>Email/password sign-up with Firebase session persistence</span>
             </div>
             <div className="flex items-center gap-3">
               <Sparkles className="h-5 w-5" />
-              <span>Analytics, patient operations, and responsive UX</span>
+              <span>Dashboard, analytics, and patient operations in one workspace</span>
             </div>
           </div>
         </div>
@@ -118,9 +126,9 @@ export default function LoginPage() {
       <div className="flex items-center justify-center p-4 sm:p-6">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle>Login</CardTitle>
+            <CardTitle>Create account</CardTitle>
             <CardDescription>
-              Sign in with your Firebase Email/Password account.
+              Set up a Firebase Email/Password account for HealthHQ.
             </CardDescription>
           </CardHeader>
 
@@ -139,11 +147,22 @@ export default function LoginPage() {
                   <span className="w-full border-t" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">Or continue with email</span>
+                  <span className="bg-card px-2 text-muted-foreground">Or create an account with email</span>
                 </div>
               </div>
 
               <form className="space-y-4" onSubmit={handleSubmit}>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Full name</label>
+                  <Input
+                    type="text"
+                    placeholder="Jordan Lee"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    disabled={authDisabled}
+                  />
+                </div>
+
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Email</label>
                   <Input
@@ -159,9 +178,20 @@ export default function LoginPage() {
                   <label className="text-sm font-medium">Password</label>
                   <Input
                     type="password"
-                    placeholder="********"
+                    placeholder="Minimum 6 characters"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    disabled={authDisabled}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Confirm password</label>
+                  <Input
+                    type="password"
+                    placeholder="Repeat your password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     disabled={authDisabled}
                   />
                 </div>
@@ -172,40 +202,30 @@ export default function LoginPage() {
                   </div>
                 )}
 
+                {successMessage && (
+                  <div className="rounded-xl border border-success/20 bg-success/10 p-3 text-sm text-success">
+                    {successMessage}
+                  </div>
+                )}
+
                 <Button type="submit" className="w-full" disabled={loading || authDisabled}>
-                  {loading ? "Signing in..." : "Login"}
+                  {loading ? "Creating account..." : "Create account"}
                 </Button>
 
                 <p className="text-center text-xs text-muted-foreground">
                   Enable Email/Password and Google providers in Firebase Authentication.
                 </p>
 
-                <p className="text-center text-sm">
-                  <Link
-                    to="/forgot-password"
-                    state={locationState}
-                    className="font-medium text-primary hover:underline"
-                  >
-                    Forgot your password?
-                  </Link>
-                </p>
-
                 <p className="text-center text-sm text-muted-foreground">
-                  Need an account?{" "}
+                  Already have an account?{" "}
                   <Link
-                    to="/signup"
+                    to="/login"
                     state={locationState}
                     className="font-medium text-primary hover:underline"
                   >
-                    Create one
+                    Sign in
                   </Link>
                 </p>
-
-                {redirectTo !== "/" && (
-                  <p className="text-center text-xs text-muted-foreground">
-                    You&apos;ll return to <span className="font-medium text-foreground">{redirectTo}</span> after login.
-                  </p>
-                )}
               </form>
             </div>
           </CardContent>
